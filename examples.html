@@ -1,0 +1,1000 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <title>SupLang — Docs & Examples</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;700;800&display=swap" rel="stylesheet" />
+    <style>
+      /* ── Tokens ── */
+      :root[data-theme="dark"] {
+        --bg: #0e0e10;
+        --surface: #18181c;
+        --surface2: #222228;
+        --border: #2e2e38;
+        --accent: #7c6af7;
+        --accent-glow: rgba(124, 106, 247, 0.25);
+        --accent2: #f7c66a;
+        --text: #e8e8f0;
+        --text-muted: #7a7a90;
+        --output-bg: #111115;
+        --shadow: 0 8px 32px rgba(0,0,0,0.5);
+        --keyword-color: #c084fc;
+        --string-color: #86efac;
+        --comment-color: #6b7280;
+        --num-color: #f7c66a;
+        --op-color: #67e8f9;
+      }
+      :root[data-theme="light"] {
+        --bg: #f0eff5;
+        --surface: #ffffff;
+        --surface2: #f5f4fb;
+        --border: #dddcf0;
+        --accent: #5b48e8;
+        --accent-glow: rgba(91, 72, 232, 0.15);
+        --accent2: #e8a020;
+        --text: #1a1a2e;
+        --text-muted: #6b6b88;
+        --output-bg: #f8f7ff;
+        --shadow: 0 8px 32px rgba(0,0,0,0.1);
+        --keyword-color: #7c3aed;
+        --string-color: #15803d;
+        --comment-color: #9ca3af;
+        --num-color: #b45309;
+        --op-color: #0369a1;
+      }
+
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body {
+        background-color: var(--bg);
+        color: var(--text);
+        font-family: 'Syne', sans-serif;
+        min-height: 100vh;
+        transition: background-color 0.3s, color 0.3s;
+      }
+
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background: radial-gradient(ellipse 55% 45% at 80% 10%, var(--accent-glow), transparent 65%);
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      /* ── Layout ── */
+      #shell {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        grid-template-rows: auto 1fr;
+        grid-template-areas:
+          "topbar topbar"
+          "sidebar main";
+        min-height: 100vh;
+      }
+
+      /* ── Topbar ── */
+      #topbar {
+        grid-area: topbar;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 2rem;
+        height: 60px;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+
+      #topbar-left { display: flex; align-items: center; gap: 1.5rem; }
+
+      #logo {
+        font-size: 1.35rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        text-decoration: none;
+        color: var(--text);
+        line-height: 1;
+      }
+      #logo span.accent { color: var(--accent); }
+      #logo span.dot { color: var(--accent2); }
+
+      #nav-links { display: flex; gap: 0.25rem; }
+      .nav-link {
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-decoration: none;
+        color: var(--text-muted);
+        padding: 0.35rem 0.75rem;
+        border-radius: 8px;
+        transition: color 0.2s, background 0.2s;
+      }
+      .nav-link:hover { color: var(--text); background: var(--surface2); }
+      .nav-link.active { color: var(--accent); background: var(--accent-glow); }
+
+      #topbar-right { display: flex; align-items: center; gap: 0.75rem; }
+
+      #toggle-label {
+        font-size: 0.68rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+      }
+
+      #theme-toggle {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        width: 48px;
+        height: 26px;
+        cursor: pointer;
+        position: relative;
+        flex-shrink: 0;
+        transition: background 0.3s, border-color 0.3s;
+      }
+      #theme-toggle::after {
+        content: '';
+        position: absolute;
+        top: 3px; left: 3px;
+        width: 18px; height: 18px;
+        border-radius: 50%;
+        background: var(--accent);
+        transition: transform 0.3s cubic-bezier(.4,0,.2,1), background 0.3s;
+        box-shadow: 0 2px 8px var(--accent-glow);
+      }
+      #theme-toggle.light::after {
+        transform: translateX(22px);
+        background: var(--accent2);
+      }
+
+      /* ── Hamburger (mobile) ── */
+      #hamburger {
+        display: none;
+        background: none;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.4rem 0.55rem;
+        cursor: pointer;
+        color: var(--text);
+        font-size: 1.1rem;
+        line-height: 1;
+      }
+
+      /* ── Sidebar ── */
+      #sidebar {
+        grid-area: sidebar;
+        background: var(--surface);
+        border-right: 1px solid var(--border);
+        padding: 2rem 1.25rem;
+        position: sticky;
+        top: 60px;
+        height: calc(100vh - 60px);
+        overflow-y: auto;
+        transition: transform 0.3s;
+      }
+
+      .sidebar-section-label {
+        font-size: 0.65rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        padding: 0 0.5rem;
+      }
+
+      .sidebar-group { margin-bottom: 1.75rem; }
+
+      .sidebar-link {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-decoration: none;
+        padding: 0.45rem 0.6rem;
+        border-radius: 8px;
+        transition: color 0.2s, background 0.2s;
+        margin-bottom: 2px;
+      }
+      .sidebar-link:hover { color: var(--text); background: var(--surface2); }
+      .sidebar-link.active { color: var(--accent); background: var(--accent-glow); }
+      .sidebar-link .pill {
+        margin-left: auto;
+        font-size: 0.6rem;
+        font-family: 'JetBrains Mono', monospace;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 0.1rem 0.35rem;
+        color: var(--text-muted);
+      }
+
+      /* ── Main ── */
+      #main {
+        grid-area: main;
+        padding: 2.5rem 3rem;
+        max-width: 860px;
+      }
+
+      .page-eyebrow {
+        font-size: 0.7rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--accent);
+        font-weight: 700;
+        margin-bottom: 0.6rem;
+      }
+
+      .page-title {
+        font-size: 2.2rem;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+        line-height: 1.1;
+        margin-bottom: 0.75rem;
+      }
+
+      .page-subtitle {
+        font-size: 1rem;
+        color: var(--text-muted);
+        line-height: 1.6;
+        max-width: 560px;
+        margin-bottom: 3rem;
+      }
+
+      /* ── Keyword cards ── */
+      .keyword-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 3.5rem;
+      }
+
+      .keyword-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+      }
+      .keyword-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 16px 48px rgba(0,0,0,0.35);
+        border-color: var(--accent);
+      }
+
+      .keyword-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.9rem 1.1rem;
+        background: var(--surface2);
+        border-bottom: 1px solid var(--border);
+        gap: 0.75rem;
+      }
+
+      .kw-name {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--keyword-color);
+      }
+
+      .kw-arrow { color: var(--text-muted); font-size: 0.8rem; }
+
+      .kw-equiv {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        background: var(--output-bg);
+        border: 1px solid var(--border);
+        padding: 0.2rem 0.55rem;
+        border-radius: 6px;
+      }
+
+      .kw-type-badge {
+        margin-left: auto;
+        font-size: 0.6rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-family: 'Syne', sans-serif;
+        font-weight: 700;
+        padding: 0.2rem 0.5rem;
+        border-radius: 5px;
+      }
+      .badge-io { background: rgba(124,106,247,0.18); color: var(--accent); }
+      .badge-control { background: rgba(247,198,106,0.18); color: var(--accent2); }
+      .badge-var { background: rgba(134,239,172,0.18); color: #4ade80; }
+      .badge-loop { background: rgba(103,232,249,0.18); color: #67e8f9; }
+      .badge-func { background: rgba(251,146,60,0.18); color: #fb923c; }
+      .badge-bool { background: rgba(244,114,182,0.18); color: #f472b6; }
+
+      .kw-description {
+        padding: 0.9rem 1.1rem 0.5rem;
+        font-size: 0.84rem;
+        color: var(--text-muted);
+        line-height: 1.55;
+      }
+
+      /* ── Code block ── */
+      .code-block {
+        margin: 0.5rem 0.75rem 0.9rem;
+        background: var(--output-bg);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      .code-block-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.45rem 0.85rem;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .dot-row { display: flex; gap: 5px; }
+      .dot-row span { width: 9px; height: 9px; border-radius: 50%; display: block; }
+      .dot-row .d1 { background: #ff5f57; }
+      .dot-row .d2 { background: #febc2e; }
+      .dot-row .d3 { background: #28c840; }
+
+      .copy-btn {
+        font-size: 0.62rem;
+        font-family: 'JetBrains Mono', monospace;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        background: none;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        border-radius: 5px;
+        padding: 0.15rem 0.5rem;
+        cursor: pointer;
+        transition: color 0.2s, border-color 0.2s;
+      }
+      .copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+      .copy-btn.copied { color: #4ade80; border-color: #4ade80; }
+
+      .code-block pre {
+        padding: 0.9rem 1rem;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.83rem;
+        line-height: 1.75;
+        overflow-x: auto;
+        color: var(--text);
+      }
+
+      /* syntax colours */
+      .tk-kw  { color: var(--keyword-color); }
+      .tk-str { color: var(--string-color); }
+      .tk-num { color: var(--num-color); }
+      .tk-cmt { color: var(--comment-color); font-style: italic; }
+      .tk-op  { color: var(--op-color); }
+      .tk-fn  { color: #fb923c; }
+      .tk-id  { color: var(--text); }
+
+      /* ── Cheat-sheet table ── */
+      .section-heading {
+        font-size: 1.35rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        margin-bottom: 1rem;
+        padding-bottom: 0.6rem;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .cheat-table-wrap {
+        overflow-x: auto;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        box-shadow: var(--shadow);
+        margin-bottom: 3.5rem;
+      }
+
+      table.cheat {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+      }
+      table.cheat thead tr {
+        background: var(--surface2);
+      }
+      table.cheat th {
+        padding: 0.75rem 1.1rem;
+        text-align: left;
+        font-size: 0.65rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        font-weight: 700;
+        border-bottom: 1px solid var(--border);
+      }
+      table.cheat td {
+        padding: 0.75rem 1.1rem;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+        color: var(--text-muted);
+      }
+      table.cheat tr:last-child td { border-bottom: none; }
+      table.cheat tbody tr { background: var(--surface); transition: background 0.15s; }
+      table.cheat tbody tr:hover { background: var(--surface2); }
+      table.cheat td:first-child, table.cheat td:nth-child(2) {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.82rem;
+        color: var(--text);
+      }
+      table.cheat td:first-child { color: var(--keyword-color); }
+
+      /* ── Example blocks (code + output side by side) ── */
+      .example-block {
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        margin-bottom: 1.5rem;
+        transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+      }
+      .example-block:hover {
+        border-color: var(--accent);
+        transform: translateY(-2px);
+        box-shadow: 0 16px 48px rgba(0,0,0,0.3);
+      }
+
+      .example-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1.1rem;
+        background: var(--surface2);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .example-title {
+        font-size: 0.78rem;
+        letter-spacing: 0.06em;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+      }
+
+      .lang-tag {
+        font-size: 0.68rem;
+        font-family: 'JetBrains Mono', monospace;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--accent);
+        background: var(--accent-glow);
+        padding: 0.18rem 0.55rem;
+        border-radius: 5px;
+        font-weight: 700;
+      }
+
+      .example-body {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .example-code,
+      .example-output {
+        padding: 0;
+      }
+
+      .example-code {
+        border-right: 1px solid var(--border);
+        background: var(--output-bg);
+      }
+
+      .example-output {
+        background: var(--surface);
+      }
+
+      .ex-pane-label {
+        font-size: 0.6rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        font-weight: 700;
+        color: var(--text-muted);
+        padding: 0.45rem 1rem;
+        border-bottom: 1px solid var(--border);
+        background: var(--surface2);
+      }
+
+      .example-code pre,
+      .example-output pre {
+        padding: 1rem 1.1rem;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.84rem;
+        line-height: 1.75;
+        overflow-x: auto;
+        color: var(--text);
+        background: transparent;
+      }
+
+      .example-output pre { color: var(--string-color); }
+
+      @media (max-width: 560px) {
+        .example-body { grid-template-columns: 1fr; }
+        .example-code { border-right: none; border-bottom: 1px solid var(--border); }
+      }
+
+
+      /* ── Footer ── */
+      #page-footer {
+        padding: 2rem 3rem;
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        letter-spacing: 0.05em;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+
+      /* ── Responsive ── */
+      @media (max-width: 768px) {
+        #shell {
+          grid-template-columns: 1fr;
+          grid-template-areas:
+            "topbar"
+            "main";
+        }
+
+        #sidebar {
+          display: none;
+          position: fixed;
+          top: 60px; left: 0;
+          width: 260px;
+          height: calc(100vh - 60px);
+          z-index: 200;
+          box-shadow: 8px 0 32px rgba(0,0,0,0.4);
+        }
+
+        #sidebar.open { display: block; }
+
+        #hamburger { display: block; }
+
+        #main { padding: 1.75rem 1.25rem; }
+
+        #page-footer { padding: 1.5rem 1.25rem; }
+
+        .page-title { font-size: 1.6rem; }
+
+        .keyword-grid { grid-template-columns: 1fr; }
+
+        #nav-links { display: none; }
+      }
+
+      @media (max-width: 480px) {
+        #topbar { padding: 0 1rem; }
+        #toggle-label { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="shell">
+
+      <!-- ── Topbar ── -->
+      <header id="topbar">
+        <div id="topbar-left">
+          <button id="hamburger" onclick="toggleSidebar()" aria-label="Menu">☰</button>
+          <a href="index.html" id="logo"><span class="accent">Sup</span>Lang<span class="dot">.</span></a>
+          <nav id="nav-links">
+            <a href="index.html" class="nav-link">Playground</a>
+            <a href="#" class="nav-link active">Docs</a>
+          </nav>
+        </div>
+        <div id="topbar-right">
+          <span id="toggle-label">Light</span>
+          <button id="theme-toggle" aria-label="Toggle theme" onclick="toggleTheme()"></button>
+        </div>
+      </header>
+
+      <!-- ── Sidebar ── -->
+      <aside id="sidebar">
+        <div class="sidebar-group">
+          <p class="sidebar-section-label">Getting Started</p>
+          <a href="#section-keywords" class="sidebar-link active" onclick="scrollTo('section-keywords')">Keywords <span class="pill">8</span></a>
+          <a href="#section-cheatsheet" class="sidebar-link" onclick="scrollTo('section-cheatsheet')">Cheat Sheet</a>
+          <a href="#section-examples" class="sidebar-link" onclick="scrollTo('section-examples')">Examples</a>
+        </div>
+        <div class="sidebar-group">
+          <p class="sidebar-section-label">Keywords</p>
+          <a href="#kw-flex" class="sidebar-link" onclick="scrollTo('kw-flex')">flex</a>
+          <a href="#kw-vibecheck" class="sidebar-link" onclick="scrollTo('kw-vibecheck')">vibeCheck</a>
+          <a href="#kw-lowkey" class="sidebar-link" onclick="scrollTo('kw-lowkey')">lowkey</a>
+          <a href="#kw-bet" class="sidebar-link" onclick="scrollTo('kw-bet')">bet</a>
+        </div>
+        <div class="sidebar-group">
+          <p class="sidebar-section-label">Operators</p>
+          <a href="#ex-buff" class="sidebar-link" onclick="scrollTo('ex-buff')">buff <span class="pill">+</span></a>
+          <a href="#ex-nerf" class="sidebar-link" onclick="scrollTo('ex-nerf')">nerf <span class="pill">−</span></a>
+          <a href="#ex-smash" class="sidebar-link" onclick="scrollTo('ex-smash')">smash <span class="pill">×</span></a>
+          <a href="#ex-split" class="sidebar-link" onclick="scrollTo('ex-split')">split <span class="pill">÷</span></a>
+        </div>
+      </aside>
+
+      <!-- ── Main Content ── -->
+      <main id="main">
+
+        <!-- Hero -->
+        <p class="page-eyebrow">Reference</p>
+        <h1 class="page-title">Keywords & Examples</h1>
+        <p class="page-subtitle">SupLang maps everyday slang to JavaScript concepts. Here's everything you need to speak the language fluently.</p>
+
+        <!-- ── Keyword Cards ── -->
+        <h2 class="section-heading" id="section-keywords">Keywords</h2>
+        <div class="keyword-grid">
+
+          <!-- flex -->
+          <div class="keyword-card" id="kw-flex">
+            <div class="keyword-card-header">
+              <span class="kw-name">flex</span>
+              <span class="kw-arrow">→</span>
+              <span class="kw-equiv">console.log</span>
+              <span class="kw-type-badge badge-io">I / O</span>
+            </div>
+            <p class="kw-description">Print any value to the output. Show the world what you've got.</p>
+            <div class="code-block">
+              <div class="code-block-bar">
+                <div class="dot-row"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+              </div>
+              <pre><span class="tk-kw">flex</span> <span class="tk-str">"Hello, World!"</span>
+<span class="tk-kw">flex</span> <span class="tk-num">42</span>
+<span class="tk-kw">flex</span> <span class="tk-id">myVar</span></pre>
+            </div>
+          </div>
+
+          <!-- vibeCheck -->
+          <div class="keyword-card" id="kw-vibecheck">
+            <div class="keyword-card-header">
+              <span class="kw-name">vibeCheck</span>
+              <span class="kw-arrow">→</span>
+              <span class="kw-equiv">if</span>
+              <span class="kw-type-badge badge-control">Control</span>
+            </div>
+            <p class="kw-description">Conditional branching. Only runs if the vibe is right (truthy).</p>
+            <div class="code-block">
+              <div class="code-block-bar">
+                <div class="dot-row"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+              </div>
+              <pre><span class="tk-kw">vibeCheck</span> <span class="tk-op">(</span><span class="tk-id">score</span> <span class="tk-op">&gt;</span> <span class="tk-num">50</span><span class="tk-op">)</span> <span class="tk-op">{</span>
+  <span class="tk-kw">flex</span> <span class="tk-str">"You passed!"</span>
+<span class="tk-op">}</span></pre>
+            </div>
+          </div>
+
+          <!-- lowkey -->
+          <div class="keyword-card" id="kw-lowkey">
+            <div class="keyword-card-header">
+              <span class="kw-name">lowkey</span>
+              <span class="kw-arrow">→</span>
+              <span class="kw-equiv">let</span>
+              <span class="kw-type-badge badge-var">Variable</span>
+            </div>
+            <p class="kw-description">Declare a mutable variable. Can be reassigned later — keeping it lowkey for now.</p>
+            <div class="code-block">
+              <div class="code-block-bar">
+                <div class="dot-row"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+              </div>
+              <pre><span class="tk-kw">lowkey</span> <span class="tk-id">score</span> <span class="tk-op">=</span> <span class="tk-num">0</span>
+<span class="tk-kw">lowkey</span> <span class="tk-id">name</span> <span class="tk-op">=</span> <span class="tk-str">"Mohit"</span>
+<span class="tk-id">score</span> <span class="tk-op">=</span> <span class="tk-num">100</span> <span class="tk-cmt">// reassignment OK</span></pre>
+            </div>
+          </div>
+
+          <!-- bet -->
+          <div class="keyword-card" id="kw-bet">
+            <div class="keyword-card-header">
+              <span class="kw-name">bet</span>
+              <span class="kw-arrow">→</span>
+              <span class="kw-equiv">const</span>
+              <span class="kw-type-badge badge-var">Variable</span>
+            </div>
+            <p class="kw-description">Declare a constant. Once you bet, there's no going back — immutable.</p>
+            <div class="code-block">
+              <div class="code-block-bar">
+                <div class="dot-row"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+              </div>
+              <pre><span class="tk-kw">bet</span> <span class="tk-id">PI</span> <span class="tk-op">=</span> <span class="tk-num">3.14159</span>
+<span class="tk-kw">bet</span> <span class="tk-id">APP_NAME</span> <span class="tk-op">=</span> <span class="tk-str">"SupLang"</span>
+<span class="tk-cmt">// PI = 4 → error, no cap</span></pre>
+            </div>
+          </div>
+
+
+        </div>
+        <!-- end keyword-grid -->
+
+        <!-- ── Cheat Sheet ── -->
+        <h2 class="section-heading" id="section-cheatsheet">Cheat Sheet</h2>
+        <div class="cheat-table-wrap">
+          <table class="cheat">
+            <thead>
+              <tr>
+                <th>SupLang</th>
+                <th>JavaScript</th>
+                <th>Category</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>flex</td><td>console.log</td><td>I/O</td><td>Print to output</td></tr>
+              <tr><td>vibeCheck</td><td>if</td><td>Control Flow</td><td>Conditional branch</td></tr>
+              <tr><td>lowkey</td><td>let</td><td>Variable</td><td>Mutable declaration</td></tr>
+              <tr><td>bet</td><td>const</td><td>Variable</td><td>Immutable declaration</td></tr>
+              <tr><td>buff</td><td>+</td><td>Operator</td><td>Addition</td></tr>
+              <tr><td>nerf</td><td>-</td><td>Operator</td><td>Subtraction</td></tr>
+              <tr><td>smash</td><td>*</td><td>Operator</td><td>Multiplication</td></tr>
+              <tr><td>split</td><td>/</td><td>Operator</td><td>Division</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ── Examples ── -->
+        <h2 class="section-heading" id="section-examples">Examples</h2>
+        <p class="page-subtitle" style="margin-bottom:2rem;">Each example shows the SupLang code and its output side-by-side.</p>
+
+        <!-- flex -->
+        <div class="example-block" id="ex-flex">
+          <div class="example-bar">
+            <span class="example-title">flex — print to output</span>
+            <span class="lang-tag">Suplang</span>
+          </div>
+          <div class="example-body">
+            <div class="example-code">
+              <div class="ex-pane-label">Code</div>
+              <pre><span class="tk-kw">flex</span> <span class="tk-str">"Hello, Mohit!"</span></pre>
+            </div>
+            <div class="example-output">
+              <div class="ex-pane-label">Output</div>
+              <pre><span class="tk-string">Hello, Mohit!</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- vibeCheck -->
+        <div class="example-block" id="ex-vibecheck">
+          <div class="example-bar">
+            <span class="example-title">vibeCheck — conditional</span>
+            <span class="lang-tag">Suplang</span>
+          </div>
+          <div class="example-body">
+            <div class="example-code">
+              <div class="ex-pane-label">Code</div>
+              <pre><span class="tk-kw">vibeCheck</span> <span class="tk-num">4</span> <span class="tk-op">&gt;</span> <span class="tk-num">3</span> <span class="tk-op">{</span>
+  <span class="tk-kw">flex</span> <span class="tk-str">"yes"</span>
+<span class="tk-op">}</span></pre>
+            </div>
+            <div class="example-output">
+              <div class="ex-pane-label">Output</div>
+              <pre><span class="tk-string">yes</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- lowkey -->
+        <div class="example-block" id="ex-lowkey">
+          <div class="example-bar">
+            <span class="example-title">lowkey — mutable variable</span>
+            <span class="lang-tag">Suplang</span>
+          </div>
+          <div class="example-body">
+            <div class="example-code">
+              <div class="ex-pane-label">Code</div>
+              <pre><span class="tk-kw">lowkey</span> <span class="tk-id">x</span> <span class="tk-op">=</span> <span class="tk-num">4</span>
+<span class="tk-kw">flex</span> <span class="tk-id">x</span></pre>
+            </div>
+            <div class="example-output">
+              <div class="ex-pane-label">Output</div>
+              <pre><span class="tk-num">4</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- bet -->
+        <div class="example-block" id="ex-bet">
+          <div class="example-bar">
+            <span class="example-title">bet — constant</span>
+            <span class="lang-tag">Suplang</span>
+          </div>
+          <div class="example-body">
+            <div class="example-code">
+              <div class="ex-pane-label">Code</div>
+              <pre><span class="tk-kw">bet</span> <span class="tk-id">y</span> <span class="tk-op">=</span> <span class="tk-num">4</span>
+<span class="tk-kw">flex</span> <span class="tk-id">y</span></pre>
+            </div>
+            <div class="example-output">
+              <div class="ex-pane-label">Output</div>
+              <pre><span class="tk-num">4</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- buff -->
+        <div class="example-block" id="ex-buff">
+          <div class="example-bar">
+            <span class="example-title">buff — addition (+)</span>
+            <span class="lang-tag">Suplang</span>
+          </div>
+          <div class="example-body">
+            <div class="example-code">
+              <div class="ex-pane-label">Code</div>
+              <pre><span class="tk-kw">flex</span> <span class="tk-num">2</span> <span class="tk-op">buff</span> <span class="tk-num">2</span></pre>
+            </div>
+            <div class="example-output">
+              <div class="ex-pane-label">Output</div>
+              <pre><span class="tk-num">4</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- nerf -->
+        <div class="example-block" id="ex-nerf">
+          <div class="example-bar">
+            <span class="example-title">nerf — subtraction (−)</span>
+            <span class="lang-tag">Suplang</span>
+          </div>
+          <div class="example-body">
+            <div class="example-code">
+              <div class="ex-pane-label">Code</div>
+              <pre><span class="tk-kw">flex</span> <span class="tk-num">4</span> <span class="tk-op">nerf</span> <span class="tk-num">3</span></pre>
+            </div>
+            <div class="example-output">
+              <div class="ex-pane-label">Output</div>
+              <pre><span class="tk-num">1</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- smash -->
+        <div class="example-block" id="ex-smash">
+          <div class="example-bar">
+            <span class="example-title">smash — multiplication (×)</span>
+            <span class="lang-tag">Suplang</span>
+          </div>
+          <div class="example-body">
+            <div class="example-code">
+              <div class="ex-pane-label">Code</div>
+              <pre><span class="tk-kw">flex</span> <span class="tk-num">3</span> <span class="tk-op">smash</span> <span class="tk-num">3</span></pre>
+            </div>
+            <div class="example-output">
+              <div class="ex-pane-label">Output</div>
+              <pre><span class="tk-num">9</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- split -->
+        <div class="example-block" id="ex-split">
+          <div class="example-bar">
+            <span class="example-title">split — division (÷)</span>
+            <span class="lang-tag">Suplang</span>
+          </div>
+          <div class="example-body">
+            <div class="example-code">
+              <div class="ex-pane-label">Code</div>
+              <pre><span class="tk-kw">flex</span> <span class="tk-num">4</span> <span class="tk-op">split</span> <span class="tk-num">2</span></pre>
+            </div>
+            <div class="example-output">
+              <div class="ex-pane-label">Output</div>
+              <pre><span class="tk-num">2</span></pre>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+
+    <footer id="page-footer">
+      <span>SupLang Docs — write, run, explore</span>
+      <span>Made with <span style="color:var(--accent)">♥</span> in SupLang</span>
+    </footer>
+
+    <script>
+      function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById('theme-toggle');
+        const label = document.getElementById('toggle-label');
+        const isLight = html.getAttribute('data-theme') === 'light';
+        html.setAttribute('data-theme', isLight ? 'dark' : 'light');
+        btn.classList.toggle('light', !isLight);
+        label.textContent = isLight ? 'Light' : 'Dark';
+      }
+
+      function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+      }
+
+      // Close sidebar when clicking outside on mobile
+      document.addEventListener('click', function(e) {
+        const sidebar = document.getElementById('sidebar');
+        const hamburger = document.getElementById('hamburger');
+        if (sidebar.classList.contains('open') &&
+            !sidebar.contains(e.target) &&
+            e.target !== hamburger) {
+          sidebar.classList.remove('open');
+        }
+      });
+
+      function copyCode(btn) {
+        const pre = btn.closest('.code-block').querySelector('pre');
+        navigator.clipboard.writeText(pre.innerText).then(() => {
+          btn.textContent = 'Copied!';
+          btn.classList.add('copied');
+          setTimeout(() => {
+            btn.textContent = 'Copy';
+            btn.classList.remove('copied');
+          }, 1800);
+        });
+      }
+
+      // Smooth scroll to section by id, offset for sticky topbar
+      function scrollTo(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const top = el.getBoundingClientRect().top + window.scrollY - 76;
+        window.scrollTo({ top, behavior: 'smooth' });
+        // Close sidebar on mobile after click
+        document.getElementById('sidebar').classList.remove('open');
+      }
+
+      // Intercept all sidebar anchor clicks
+      document.querySelectorAll('.sidebar-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          const href = this.getAttribute('href');
+          if (href && href.startsWith('#')) {
+            scrollTo(href.slice(1));
+          }
+        });
+      });
+
+      // Highlight active sidebar link on scroll using IntersectionObserver
+      const allSectionIds = [
+        'section-keywords','section-cheatsheet','section-examples',
+        'kw-flex','kw-vibecheck','kw-lowkey','kw-bet',
+        'kw-nocap','kw-periodt','kw-ghosted','kw-slay',
+        'ex-buff','ex-nerf','ex-smash','ex-split',
+        'ex-flex','ex-vibecheck','ex-lowkey','ex-bet'
+      ];
+
+      const sidebarLinks = document.querySelectorAll('.sidebar-link');
+
+      function setActive(id) {
+        sidebarLinks.forEach(l => {
+          const href = l.getAttribute('href');
+          l.classList.toggle('active', href === '#' + id);
+        });
+      }
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            setActive(entry.target.id);
+          }
+        });
+      }, { rootMargin: '-60px 0px -70% 0px', threshold: 0 });
+
+      allSectionIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) observer.observe(el);
+      });
+    </script>
+  </body>
+</html>
