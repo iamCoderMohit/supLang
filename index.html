@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+  <head>
+    <title>FunLang Playground</title>
+  </head>
+  <body style="background-color: rgb(20, 19, 19); color: white;">
+    <h2>FunLang Playground</h2>
+
+    <textarea id="code" rows="10" cols="40" style="background-color: gray;">
+flex "Hello Mohit"
+</textarea
+    >
+
+    <br /><br />
+
+    <button onclick="run()">Run</button>
+
+    <h3>Output:</h3>
+    <pre id="output"></pre>
+
+    <script type="module">
+      import { runSupLang } from "./run.js";
+
+      window.run = function () {
+        const code = document.getElementById("code").value;
+        const result = runSupLang(code);
+        const outputEl = document.getElementById("output");
+
+        if (result.success) {
+          outputEl.textContent = result.output;
+          outputEl.style.color = "green";
+        } else {
+          outputEl.textContent = result.error;
+          outputEl.style.color = "red";
+        }
+      };
+    </script>
+  </body>
+</html>
