@@ -1,0 +1,469 @@
+/* ── CSS Variables / Tokens ── */
+:root[data-theme="dark"] {
+  --bg: #0e0e10;
+  --surface: #18181c;
+  --surface2: #222228;
+  --border: #2e2e38;
+  --accent: #7c6af7;
+  --accent-glow: rgba(124, 106, 247, 0.25);
+  --accent2: #f7c66a;
+  --text: #e8e8f0;
+  --text-muted: #7a7a90;
+  --output-bg: #111115;
+  --btn-text: #fff;
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme="light"] {
+  --bg: #f0eff5;
+  --surface: #ffffff;
+  --surface2: #f5f4fb;
+  --border: #dddcf0;
+  --accent: #5b48e8;
+  --accent-glow: rgba(91, 72, 232, 0.15);
+  --accent2: #e8a020;
+  --text: #1a1a2e;
+  --text-muted: #6b6b88;
+  --output-bg: #f8f7ff;
+  --btn-text: #fff;
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* ── Reset ── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Body ── */
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: "Syne", sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem 1.5rem;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 60% 50% at 70% 20%,
+    var(--accent-glow),
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── App wrapper ── */
+#app {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 720px;
+}
+
+/* ── Header ── */
+#header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+#title {
+  font-size: 1.9rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+#title span.accent { color: var(--accent); }
+#title span.dot    { color: var(--accent2); }
+
+/* ── Theme toggle ── */
+#toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#toggle-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+#theme-toggle {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  width: 52px;
+  height: 28px;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition: background 0.3s, border-color 0.3s;
+}
+
+#theme-toggle::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s;
+  box-shadow: 0 2px 8px var(--accent-glow);
+}
+
+#theme-toggle.light::after {
+  transform: translateX(24px);
+  background: var(--accent2);
+}
+
+/* ── Shared button base (shimmer style) ── */
+.funlang-btn,
+#run-btn {
+  background: var(--accent);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 20px var(--accent-glow);
+  transition: transform 0.15s, box-shadow 0.2s, background 0.3s;
+  font-family: "Syne", sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--btn-text);
+}
+
+.funlang-btn::before,
+#run-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.12) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.4s;
+}
+
+.funlang-btn:hover::before,
+#run-btn:hover::before { transform: translateX(100%); }
+
+.funlang-btn:hover,
+#run-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px var(--accent-glow);
+}
+
+.funlang-btn:active,
+#run-btn:active { transform: translateY(0); }
+
+/* Examples link button specific */
+.funlang-btn {
+  padding: 0.6rem 1.2rem;
+}
+
+.funlang-btn a {
+  font-family: "Syne", sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #fff;
+  text-decoration: none;
+  position: relative;
+  z-index: 1;
+}
+
+/* Run button specific */
+#run-btn {
+  width: 100%;
+  padding: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+/* ── Editor card ── */
+#editor-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  margin-bottom: 1.25rem;
+  transition: background 0.3s, border-color 0.3s;
+}
+
+#editor-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+
+#editor-lang-tag {
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  font-family: "JetBrains Mono", monospace;
+  background: var(--accent-glow);
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+}
+
+/* macOS dots */
+.dot-row { display: flex; gap: 6px; }
+.dot-row span {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  display: block;
+}
+.dot-row .d1 { background: #ff5f57; }
+.dot-row .d2 { background: #febc2e; }
+.dot-row .d3 { background: #28c840; }
+
+/* ── Code textarea ── */
+#code {
+  width: 100%;
+  min-height: 180px;
+  background: transparent;
+  color: var(--text);
+  border: none;
+  outline: none;
+  resize: vertical;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  padding: 1.25rem 1.5rem;
+  caret-color: var(--accent);
+  transition: color 0.3s;
+}
+
+/* ── Output card ── */
+#output-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: background 0.3s, border-color 0.3s;
+}
+
+#output-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+
+#output-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+#output-indicator {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #28c840;
+  box-shadow: 0 0 6px #28c840;
+  margin-left: auto;
+}
+
+#output {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  padding: 1.25rem 1.5rem;
+  min-height: 80px;
+  background: var(--output-bg);
+  color: var(--text);
+  white-space: pre-wrap;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* ── Footer ── */
+#footer {
+  margin-top: 2rem;
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+/* ════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+   ════════════════════════════════════════ */
+
+/* ── Tablet (≤ 768px) ── */
+@media (max-width: 768px) {
+  body {
+    padding: 2rem 1.25rem;
+  }
+
+  #title {
+    font-size: 1.55rem;
+  }
+
+  .funlang-btn {
+    padding: 0.55rem 1rem;
+  }
+
+  .funlang-btn a {
+    font-size: 0.9rem;
+  }
+
+  #code {
+    font-size: 0.88rem;
+    min-height: 160px;
+  }
+
+  #output {
+    font-size: 0.85rem;
+  }
+}
+
+/* ── Mobile (≤ 480px) ── */
+@media (max-width: 480px) {
+  body {
+    padding: 1.5rem 1rem;
+  }
+
+  #header {
+    gap: 0.5rem;
+  }
+
+  #title {
+    font-size: 1.3rem;
+  }
+
+  /* Stack examples button + toggle on smaller screens */
+  .funlang-btn {
+    padding: 0.5rem 0.85rem;
+    border-radius: 10px;
+  }
+
+  .funlang-btn a {
+    font-size: 0.82rem;
+  }
+
+  #toggle-label {
+    display: none; /* hide "Light/Dark" text on tiny screens */
+  }
+
+  #editor-toolbar {
+    padding: 0.6rem 0.85rem;
+  }
+
+  #editor-lang-tag {
+    font-size: 0.62rem;
+  }
+
+  #code {
+    font-size: 0.85rem;
+    padding: 1rem 1rem;
+    min-height: 140px;
+  }
+
+  #run-btn {
+    font-size: 0.92rem;
+    padding: 0.75rem;
+    border-radius: 10px;
+  }
+
+  #output {
+    font-size: 0.82rem;
+    padding: 1rem 1rem;
+  }
+
+  #output-header {
+    padding: 0.6rem 0.85rem;
+  }
+
+  #footer {
+    font-size: 0.68rem;
+  }
+}
+
+/* ── Very small screens (≤ 360px) ── */
+@media (max-width: 360px) {
+  #title {
+    font-size: 1.15rem;
+  }
+
+  .funlang-btn a {
+    font-size: 0.75rem;
+  }
+
+  #theme-toggle {
+    width: 44px;
+    height: 24px;
+  }
+
+  #theme-toggle::after {
+    width: 16px;
+    height: 16px;
+  }
+
+  #theme-toggle.light::after {
+    transform: translateX(20px);
+  }
+}
+
+/* ── Large screens (≥ 1024px) ── */
+@media (min-width: 1024px) {
+  #app {
+    max-width: 760px;
+  }
+
+  #title {
+    font-size: 2.1rem;
+  }
+
+  #code {
+    font-size: 1rem;
+    min-height: 200px;
+  }
+}
+
+/* ── Wide / desktop (≥ 1280px) ── */
+@media (min-width: 1280px) {
+  body {
+    padding: 4rem 2rem;
+  }
+
+  #app {
+    max-width: 800px;
+  }
+}

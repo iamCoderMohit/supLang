@@ -2,385 +2,14 @@
 <html lang="en" data-theme="dark">
   <head>
     <title>SupLang Playground</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;700;800&display=swap"
       rel="stylesheet"
     />
-    <style>
-      :root[data-theme="dark"] {
-        --bg: #0e0e10;
-        --surface: #18181c;
-        --surface2: #222228;
-        --border: #2e2e38;
-        --accent: #7c6af7;
-        --accent-glow: rgba(124, 106, 247, 0.25);
-        --accent2: #f7c66a;
-        --text: #e8e8f0;
-        --text-muted: #7a7a90;
-        --output-bg: #111115;
-        --btn-text: #fff;
-        --shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-      }
-
-      :root[data-theme="light"] {
-        --bg: #f0eff5;
-        --surface: #ffffff;
-        --surface2: #f5f4fb;
-        --border: #dddcf0;
-        --accent: #5b48e8;
-        --accent-glow: rgba(91, 72, 232, 0.15);
-        --accent2: #e8a020;
-        --text: #1a1a2e;
-        --text-muted: #6b6b88;
-        --output-bg: #f8f7ff;
-        --btn-text: #fff;
-        --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-      }
-
-      *,
-      *::before,
-      *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-
-      body {
-        background-color: var(--bg);
-        color: var(--text);
-        font-family: "Syne", sans-serif;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 3rem 1.5rem;
-        transition:
-          background-color 0.3s,
-          color 0.3s;
-      }
-
-      body::before {
-        content: "";
-        position: fixed;
-        inset: 0;
-        background: radial-gradient(
-          ellipse 60% 50% at 70% 20%,
-          var(--accent-glow),
-          transparent 70%
-        );
-        pointer-events: none;
-        z-index: 0;
-      }
-
-      #app {
-        position: relative;
-        z-index: 1;
-        width: 100%;
-        max-width: 720px;
-      }
-
-      /* Header */
-      #header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 2rem;
-      }
-
-      #title {
-        font-size: 1.9rem;
-        font-weight: 800;
-        letter-spacing: -0.03em;
-        line-height: 1;
-      }
-
-      #title span.accent {
-        color: var(--accent);
-      }
-      #title span.dot {
-        color: var(--accent2);
-      }
-
-      /* Dark mode toggle */
-      #theme-toggle {
-        background: var(--surface2);
-        border: 1px solid var(--border);
-        border-radius: 999px;
-        width: 52px;
-        height: 28px;
-        cursor: pointer;
-        position: relative;
-        transition:
-          background 0.3s,
-          border-color 0.3s;
-        flex-shrink: 0;
-      }
-
-      #theme-toggle::after {
-        content: "";
-        position: absolute;
-        top: 3px;
-        left: 3px;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background: var(--accent);
-        transition:
-          transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-          background 0.3s;
-        box-shadow: 0 2px 8px var(--accent-glow);
-      }
-
-      #theme-toggle.light::after {
-        transform: translateX(24px);
-        background: var(--accent2);
-      }
-
-      #toggle-label {
-        font-size: 0.7rem;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: var(--text-muted);
-        margin-right: 0.5rem;
-      }
-
-      #toggle-wrap {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-
-      /* Editor card */
-      #editor-card {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: var(--shadow);
-        margin-bottom: 1.25rem;
-        transition:
-          background 0.3s,
-          border-color 0.3s;
-      }
-
-      #editor-toolbar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0.75rem 1rem;
-        background: var(--surface2);
-        border-bottom: 1px solid var(--border);
-      }
-
-      #editor-lang-tag {
-        font-size: 0.7rem;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        color: var(--accent);
-        font-weight: 700;
-        font-family: "JetBrains Mono", monospace;
-        background: var(--accent-glow);
-        padding: 0.2rem 0.6rem;
-        border-radius: 6px;
-      }
-
-      .dot-row {
-        display: flex;
-        gap: 6px;
-      }
-      .dot-row span {
-        width: 11px;
-        height: 11px;
-        border-radius: 50%;
-        display: block;
-      }
-      .dot-row .d1 {
-        background: #ff5f57;
-      }
-      .dot-row .d2 {
-        background: #febc2e;
-      }
-      .dot-row .d3 {
-        background: #28c840;
-      }
-
-      #code {
-        width: 100%;
-        min-height: 180px;
-        background: transparent;
-        color: var(--text);
-        border: none;
-        outline: none;
-        resize: vertical;
-        font-family: "JetBrains Mono", monospace;
-        font-size: 0.95rem;
-        line-height: 1.7;
-        padding: 1.25rem 1.5rem;
-        caret-color: var(--accent);
-        transition: color 0.3s;
-      }
-
-      /* Run button */
-      #run-btn {
-        width: 100%;
-        padding: 0.85rem;
-        background: var(--accent);
-        color: var(--btn-text);
-        border: none;
-        border-radius: 12px;
-        font-family: "Syne", sans-serif;
-        font-size: 1rem;
-        font-weight: 700;
-        letter-spacing: 0.04em;
-        cursor: pointer;
-        transition:
-          transform 0.15s,
-          box-shadow 0.2s,
-          background 0.3s;
-        box-shadow: 0 4px 20px var(--accent-glow);
-        margin-bottom: 1.25rem;
-        position: relative;
-        overflow: hidden;
-      }
-
-      #run-btn::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(
-          90deg,
-          transparent 0%,
-          rgba(255, 255, 255, 0.12) 50%,
-          transparent 100%
-        );
-        transform: translateX(-100%);
-        transition: transform 0.4s;
-      }
-
-      #run-btn:hover::before {
-        transform: translateX(100%);
-      }
-      #run-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 28px var(--accent-glow);
-      }
-      #run-btn:active {
-        transform: translateY(0);
-      }
-
-      .funlang-btn {
-        background: var(--accent);
-        border: none;
-        border-radius: 12px;
-        padding: 0.85rem 1.5rem;
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 4px 20px var(--accent-glow);
-        transition:
-          transform 0.15s,
-          box-shadow 0.2s;
-      }
-
-      .funlang-btn::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(
-          90deg,
-          transparent 0%,
-          rgba(255, 255, 255, 0.12) 50%,
-          transparent 100%
-        );
-        transform: translateX(-100%);
-        transition: transform 0.4s;
-      }
-
-      .funlang-btn:hover::before {
-        transform: translateX(100%);
-      }
-      .funlang-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 28px var(--accent-glow);
-      }
-      .funlang-btn:active {
-        transform: translateY(0);
-      }
-
-      .funlang-btn a {
-        font-family: "Syne", sans-serif;
-        font-size: 1rem;
-        font-weight: 700;
-        letter-spacing: 0.04em;
-        color: #fff;
-        text-decoration: none;
-        position: relative; /* sits above the ::before shimmer layer */
-        z-index: 1;
-      }
-
-      /* Output card */
-      #output-card {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: var(--shadow);
-        transition:
-          background 0.3s,
-          border-color 0.3s;
-      }
-
-      #output-header {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.75rem 1rem;
-        background: var(--surface2);
-        border-bottom: 1px solid var(--border);
-      }
-
-      #output-label {
-        font-size: 0.7rem;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        color: var(--text-muted);
-        font-weight: 700;
-      }
-
-      #output-indicator {
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: #28c840;
-        box-shadow: 0 0 6px #28c840;
-        margin-left: auto;
-      }
-
-      #output {
-        font-family: "JetBrains Mono", monospace;
-        font-size: 0.9rem;
-        line-height: 1.7;
-        padding: 1.25rem 1.5rem;
-        min-height: 80px;
-        background: var(--output-bg);
-        color: var(--text);
-        white-space: pre-wrap;
-        transition:
-          background 0.3s,
-          color 0.3s;
-      }
-
-      /* Footer */
-      #footer {
-        margin-top: 2rem;
-        text-align: center;
-        font-size: 0.72rem;
-        color: var(--text-muted);
-        letter-spacing: 0.05em;
-      }
-    </style>
+    <link rel="stylesheet" href="./css/index.css" />
   </head>
   <body>
     <div id="app">
@@ -389,7 +18,7 @@
           <span class="accent">Sup</span>Lang<span class="dot">.</span>
         </h1>
         <button class="funlang-btn">
-          <a href="/examples.html">Examples</a>
+          <a href="./examples.html">Examples</a>
         </button>
         <div id="toggle-wrap">
           <span id="toggle-label">Light</span>
@@ -404,8 +33,9 @@
       <div id="editor-card">
         <div id="editor-toolbar">
           <div class="dot-row">
-            <span class="d1"></span><span class="d2"></span
-            ><span class="d3"></span>
+            <span class="d1"></span>
+            <span class="d2"></span>
+            <span class="d3"></span>
           </div>
           <span id="editor-lang-tag">suplang</span>
         </div>
@@ -426,6 +56,7 @@
         SupLang Playground &mdash; write, run, explore
       </footer>
     </div>
+
     <script type="module">
       import { runSupLang } from "./run.js";
 
@@ -443,6 +74,7 @@
         }
       };
     </script>
+
     <script>
       function toggleTheme() {
         const html = document.documentElement;
@@ -452,12 +84,6 @@
         html.setAttribute("data-theme", isLight ? "dark" : "light");
         btn.classList.toggle("light", !isLight);
         label.textContent = isLight ? "Light" : "Dark";
-      }
-
-      // Placeholder run() — replace with actual interpreter logic
-      function run() {
-        const code = document.getElementById("code").value;
-        document.getElementById("output").textContent = "> " + code.trim();
       }
     </script>
   </body>
